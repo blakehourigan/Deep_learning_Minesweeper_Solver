@@ -1,6 +1,6 @@
 import tkinter as tk
+from tkinter import messagebox
 import time
-import threading
 
 import config
 
@@ -21,7 +21,7 @@ class MinesweeperGUI:
         
         self.flag_images = {}  
      
-    def main_gui_setup(self, size):
+    def main_gui_setup(self, size) -> None:
         self.master.title("Minesweeper")
         
         # create layout for the elements on the screen
@@ -41,25 +41,7 @@ class MinesweeperGUI:
         
         self.set_window_center(window_width, window_height)     
 
-
-    def show_ai_solution(self, solution_index,ai_solution):
-        top = tk.Toplevel(self.master)
-        top.title(f"AI's Solution #{solution_index + 1}")
-                
-        ai_gui = MinesweeperGUI(top, self.controller)
-
-    def overlay_ai_flags(self, ai_solution):
-        for row in range(self.controller.logic.grid_size):
-            for col in range(self.controller.logic.grid_size):
-                button = self.buttons[row][col]
-                # If the current cell is flagged by the AI, overlay the flag image
-                if (row, col) in ai_solution.flags:
-                    if (row, col) not in self.flag_images:
-                        self.flag_images[(row, col)] = tk.PhotoImage(file=config.flag_image)
-                    button.config(relief=tk.RAISED, image=self.flag_images[(row, col)])
-                    button.image = self.flag_images[(row, col)] # add to flag_images global class dict
-
-    def create_button(self, master, row, column):
+    def create_button(self, master, row, column) -> tk.Button:
         frame = tk.Frame(master)
         frame.grid(row=row, column=column, padx=0, pady=0, sticky="nsew")  # Use sticky to fill the space
         
@@ -74,7 +56,7 @@ class MinesweeperGUI:
 
         return button
 
-    def set_window_center(self, width, height):
+    def set_window_center(self, width, height) -> None:
         # Get screen width and height
         screen_width = self.master.winfo_screenwidth()
         screen_height = self.master.winfo_screenheight()
@@ -84,43 +66,41 @@ class MinesweeperGUI:
         
         self.master.geometry(f'{width}x{height}+{int(x)}+{int(y)}')
     
-    def reveal_board(self):
+    def reveal_board(self) -> None:
         for row_index, row_entries in enumerate(self.controller.logic.board):
             for col_index, cell in enumerate(row_entries):
                 self._update_button_if_not_revealed(row_index, col_index, cell)
 
-    def _update_button_if_not_revealed(self, row_index, col_index, cell):
+    def _update_button_if_not_revealed(self, row_index, col_index, cell) -> None:
         if not cell.is_revealed:
             button = self.buttons[row_index][col_index]
             self.configure_game_button_state(button, cell)
 
-    def configure_game_button_state(self, button, cell, action = None):
+    def configure_game_button_state(self, button, cell, action = None) -> None:
         if action:
             if action == 'setflag':
-                button.config(image=self.images['flag'], width=config.button_width, height=config.button_height )
+                button.config(image=self.images['flag'], width=config.button_width, height=config.button_height)
             elif action == 'unset_flag':
-                button.config(relief=tk.RAISED)
-                button.config(image='')
+                button.config(relief=tk.RAISED, image='')
         else:
-            cell_type = cell.get_type()
-            color = config.MINE_COLORMAP.get(cell_type)
-            button.config(relief=tk.SUNKEN, state=tk.DISABLED, bg=color)
-            if cell.type == 'mine':
-                button.config(relief=tk.RAISED, state=tk.DISABLED, bg=color)
-                button.config(image=self.images['mine'])
-            elif cell.type != 'empty' and cell.type != 'flag':
-                button.config(text=cell.type)
-        self.master.update()
+            if cell.is_mine:
+                color = config.MINE_COLORMAP['mine']
+                button.config(relief=tk.RAISED, state=tk.DISABLED, bg=color, image=self.images['mine'])
+            elif cell.is_numbered:
+                color = config.MINE_COLORMAP.get(cell.get_number())
+                button.config(relief=tk.SUNKEN, state=tk.DISABLED,text=cell.get_number(), bg=color, fg='white')
+            elif cell.is_empty:
+                color = config.MINE_COLORMAP['empty']
+                button.config(relief=tk.SUNKEN, state=tk.DISABLED, text='', bg=color)
+            self.master.update()
 
-    def clear_adjacent_cells(self, to_reveal):
+    def clear_adjacent_cells(self, to_reveal) -> None:
         for row, col in to_reveal:
             button = self.buttons[row][col]
             cell = self.controller.logic.board[row][col]
             self.configure_game_button_state(button, cell)
-    
 
-
-    def load_image(self, master):
+    def load_image(self, master) -> None:
         # Get the appropriate icon file based on the OS used
         icon_file = config.get_task_tray_icon()
 
@@ -130,22 +110,25 @@ class MinesweeperGUI:
             tt_img = tk.PhotoImage(file=icon_file)
             master.iconphoto(True, tt_img)
 
-    def setup_game_clock(self, master, size):
+    def setup_game_clock(self, master, size) -> None:
         self.timer_label = tk.Label(master, text="Time: 0s")
         self.timer_label.grid(row=0, column=0, columnspan=size//2, sticky="w")
 
-        self.score_label = tk.Label(master, text="Score: 0")
+        self.score_label = tk.Label(master, text=f"Score: {self.controller.logic.get_score()}")
         self.score_label.grid(row=0, column=size//2, columnspan=size//2, sticky="e")
         if not self.controller.logic.running:
             self.start_time = time.time()
             self.controller.logic.running = True
             self.update_game_clock()
 
-    def update_game_clock(self):
+    def update_game_clock(self) -> None:
         if self.controller.logic.running:
             elapsed_time = int(time.time() - self.start_time)
             self.timer_label.config(text=f"Time: {elapsed_time}s")
             self.master.after(1000, self.update_game_clock)
     
-    def update_game_score(self):
+    def update_game_score(self) -> None:
         self.score_label.config(text=f"Score: {self.controller.logic.get_score()}")
+    
+    def show_error(self, title, message) -> None:
+        messagebox.showinfo(title, message)
