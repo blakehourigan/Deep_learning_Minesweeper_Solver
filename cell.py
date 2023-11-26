@@ -11,7 +11,7 @@ class Cell:
         self.is_numbered = False
 
     def __str__(self):
-        return f"\Number: {self.number} \n# Adjacent mines: {self.adjacent_mines}\nRevealed: {self.is_revealed}"
+        return f"\nNumber: {self.number} \n# Adjacent mines: {self.adjacent_mines}\nRevealed: {self.is_revealed}"
     
     def get_number(self):
         return self.number

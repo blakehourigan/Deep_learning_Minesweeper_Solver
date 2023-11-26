@@ -24,9 +24,9 @@ class GameManager:
         self.clear_screen()
 
         self.logic.player = player
-        
         self.logic.grid_size = config.DIFFICULTIES[difficulty]['size']
         self.logic.num_mines = config.DIFFICULTIES[difficulty]['mines']
+        print(difficulty, self.logic.grid_size, self.logic.num_mines)
         
         self.current_screen = MinesweeperGUI(self.root, self)
         self.GUI = self.current_screen

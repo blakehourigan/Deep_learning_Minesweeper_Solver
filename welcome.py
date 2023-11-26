@@ -26,6 +26,7 @@ class WelcomeScreen:
         
         # Create the OptionMenu and assign it to self.option_menu
         self.option_menu = tk.OptionMenu(master, self.difficulty, *options)
+        self.option_menu['menu'].config(bg='grey', fg='white')
         self.option_menu.pack()
         
         play_options = ['Player', 'AI']
@@ -54,15 +55,15 @@ class WelcomeScreen:
 
     def update_color(self, *args):
         """ update the color of the buttons based on current selections """
-        self.option_menu.config(bg=self.get_difficulty_color(), activebackground=self.get_difficulty_color())
-        self.player_menu.config(bg=self.get_player_color(), activebackground=self.get_player_color())
+        self.option_menu.config(bg=self.get_difficulty_color(), fg='white', activebackground=self.get_difficulty_color())
+        self.player_menu.config(bg=self.get_player_color(), fg='white', activebackground=self.get_player_color())
 
         # Additionally, bind the hover events to reset the color
-        self.option_menu.bind("<Enter>", lambda e: self.option_menu.config(bg=self.get_difficulty_color()))
-        self.option_menu.bind("<Leave>", lambda e: self.option_menu.config(bg=self.get_difficulty_color()))
+        self.option_menu.bind("<Enter>", lambda e: self.option_menu.config(bg=self.get_difficulty_color(), fg='white'))
+        self.option_menu.bind("<Leave>", lambda e: self.option_menu.config(bg=self.get_difficulty_color(), fg='white'))
 
-        self.player_menu.bind("<Enter>", lambda e: self.player_menu.config(bg=self.get_player_color()))
-        self.player_menu.bind("<Leave>", lambda e: self.player_menu.config(bg=self.get_player_color()))
+        self.player_menu.bind("<Enter>", lambda e: self.player_menu.config(bg=self.get_player_color(), fg='white'))
+        self.player_menu.bind("<Leave>", lambda e: self.player_menu.config(bg=self.get_player_color(), fg='white'))
 
     def get_difficulty_color(self):
         """ get the color for the difficulty button """
