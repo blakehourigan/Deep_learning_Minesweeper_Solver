@@ -13,8 +13,7 @@ class MinesweeperLogic:
     def __init__(self, controller, size, mines):
         self.num_mines = mines
         self.grid_size = size
-        
-        self.board = self.create_board()
+    
         self.mine_coords = set()
         
         self.num_moves = 0
@@ -25,9 +24,9 @@ class MinesweeperLogic:
         
         self.controller = controller
         
-    def create_board(self) -> list:
-        board = [[Cell() for _ in range(self.grid_size)] for _ in range(self.grid_size)]
-        return board
+    def create_board(self) -> None:
+        self.board = [[Cell() for _ in range(self.grid_size)] for _ in range(self.grid_size)]
+
 
     def fill_board(self) -> None:
         self.generate_mines()

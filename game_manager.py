@@ -1,4 +1,5 @@
 import tkinter as tk
+from typing import Callable
 
 from gui import MinesweeperGUI
 import config
@@ -9,27 +10,30 @@ from logic import MinesweeperLogic
 
 class GameManager:
     
-    def __init__(self):
+    def __init__(self) -> None:
         self.root = tk.Tk()
         self.root.title("Minesweeper")
         self.current_screen = None
 
-        self.logic = MinesweeperLogic(controller= self, **config.DIFFICULTIES["Beginner"])
-
-    def start_welcome_screen(self, welcome_class):
+    def start_welcome_screen(self, welcome_class) -> None:
         self.current_screen = welcome_class(self.root, self.start_game)
+        
         self.root.mainloop()
 
-    def start_game(self, difficulty, player):
+    def start_game(self, difficulty, player) -> None:
         self.clear_screen()
-
-        self.logic.player = player
-        self.logic.grid_size = config.DIFFICULTIES[difficulty]['size']
-        self.logic.num_mines = config.DIFFICULTIES[difficulty]['mines']
-        print(difficulty, self.logic.grid_size, self.logic.num_mines)
+        
+        self.create_logic(difficulty, player)
         
         self.current_screen = MinesweeperGUI(self.root, self)
         self.GUI = self.current_screen
+    
+    def create_logic(self, difficulty, player):
+        self.logic = MinesweeperLogic(controller=self, **config.DIFFICULTIES[difficulty])
+        self.logic.player = player
+        self.logic.grid_size = config.DIFFICULTIES[difficulty]['size']
+        self.logic.num_mines = config.DIFFICULTIES[difficulty]['mines']
+        self.logic.create_board()
     
     def show_win_screen(self) -> None:
         """ clear the gui and show the winner splash screen """
@@ -46,13 +50,15 @@ class GameManager:
 
     def restart_game(self) -> None:
         self.clear_screen()
+        if hasattr(self, 'logic'):
+            del self.logic
         self.start_welcome_screen(WelcomeScreen)
         
     def destroy_game(self) -> None:
         self.clear_screen()
         self.root.destroy()
 
-    def on_left_click(self, row, column):
+    def on_left_click(self, row, column) -> Callable:
         def callback(event):
             logic_row, logic_column  = row - 1, column  # row decremented by one because an extra row in the gui contains the timer and score labels
             
@@ -78,7 +84,7 @@ class GameManager:
             self.GUI.update_game_score()
         return callback
     
-    def on_right_click(self, row, column):
+    def on_right_click(self, row, column) -> Callable:
         """ handles flagging of tiles """
         def callback(event):
             logic_row, logic_column  = row - 1, column  # row decremented by one because an extra row in the gui contains the timer and score labels

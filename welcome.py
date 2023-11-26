@@ -20,7 +20,7 @@ class WelcomeScreen:
         tk.Label(master, text="Welcome to Minesweeper! Choose your difficulty:").pack()
 
         self.difficulty = tk.StringVar(master)
-        self.difficulty.set("Beginner")  # default value
+        self.difficulty.set("Beginner")
         
         options = list(config.DIFFICULTIES.keys())  # Get difficulties from config
         
@@ -43,7 +43,11 @@ class WelcomeScreen:
         # Trace the variable to change the OptionMenu color
         self.difficulty.trace("w", self.update_color)
         self.player.trace("w", self.update_color)
-
+        
+        window_width = config.welc_width
+        window_height = config.welc_height
+        
+        self.master.minsize(window_width, window_height)
         tk.Button(master, text="Start Game", command=self.on_start_game).pack()
         
         self.center_window(config.welc_width, config.welc_height)  # Set the size of the window defined in config
