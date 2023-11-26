@@ -70,14 +70,13 @@ class GameManager:
                 to_reveal = self.logic.clear_adjacent_cells(logic_row, logic_column)
                 self.GUI.clear_adjacent_cells(to_reveal)
             elif result == 'mine':
-                self.controller.logic.running = False
-                # reveal the board to the player for 5s
-                self.reveal_board()
+                self.logic.running = False
+                self.GUI.reveal_board()
 
                 time.sleep(5) 
                 self.show_loss_screen()
             elif cell.is_numbered():
-                self.configure_game_button_state(button, cell)
+                self.GUI.configure_game_button_state(button, cell)
             else:
                 print("Error: cell type not allowed")
                 exit(1)
@@ -95,6 +94,6 @@ class GameManager:
                 return callback 
             else:
                 action = self.logic.toggle_flag(logic_row, logic_column)
-                self.configure_game_button_state(button, cell, action)
+                self.GUI.configure_game_button_state(button, cell, action)
 
         return callback

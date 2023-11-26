@@ -3,6 +3,13 @@ import random
 from cell import Cell
 
 class MinesweeperLogic:
+    NEIGHBOR_POSITIONS = \
+        [(-1, -1), (-1, 0), (-1, 1),  
+         (0, -1),           (0, 1),   
+         (1, -1), (1, 0), (1, 1)]     
+        
+    CORRECT_FLAG_POINTS = 20 
+    
     def __init__(self, size, mines):
         self.num_mines = mines
         self.grid_size = size
@@ -11,15 +18,12 @@ class MinesweeperLogic:
         self.mine_coords = set()
         
         self.num_moves = 0
-        self.score = 0
+        self.user_score = 0
         
         self.running = False
         self.player = None
         
-        self.neighbor_positions = \
-        [(-1, -1), (-1, 0), (-1, 1),  
-         (0, -1),           (0, 1),   
-         (1, -1), (1, 0), (1, 1)]     
+
 
     def create_board(self) -> list:
         board = [[Cell() for _ in range(self.grid_size)] for _ in range(self.grid_size)]
@@ -115,7 +119,7 @@ class MinesweeperLogic:
             # If the current cell is empty, add its neighbors to the set
             if curr_cell.get_type() == 'empty':
 
-                for row_offset, col_offset in self.neighbor_positions:
+                for row_offset, col_offset in self.NEIGHBOR_POSITIONS:
                     neighbor_row, neighbor_col = current_row + row_offset, current_col + col_offset
                     # Check if the neighbor is within the bounds of the board
                     if 0 <= neighbor_row < len(self.board) and 0 <= neighbor_col < len(self.board[0]):
@@ -126,9 +130,9 @@ class MinesweeperLogic:
         self.count_current_score()
         return revealed_cells
 
-    def count_adjacent_mines(self, row, col):
+    def count_adjacent_mines(self, row, col) -> None:
         count = 0
-        for row_offset, col_offset in self.neighbor_positions:
+        for row_offset, col_offset in self.NEIGHBOR_POSITIONS:
             neighbor_row, neighbor_col = row + row_offset, col + col_offset
             # Check if the neighbor is within the bounds of the board
             if 0 <= neighbor_row < len(self.board) and 0 <= neighbor_col < len(self.board[0]):
@@ -137,26 +141,29 @@ class MinesweeperLogic:
 
         return count
 
-    def count_current_score(self):
-        """ Function to calculate the player's current score. """
+    def count_current_score(self) -> None:
         score = 0
+        
         for row in self.board:
             for cell in row:
-                if cell.get_type() != 'mine' and cell.is_revealed:
-                    score += 1
+                score += self.process_current_cell_score(cell)
 
         if self.check_for_win():
-            # Check if all mines are correctly flagged
-            all_mines_flagged = all(cell.get_type() == 'mine' and cell.is_flagged for row in self.board for cell in row)
-            if all_mines_flagged:
-                # Assign maximum score if all mines are correctly flagged
-                self.score = self.calculate_maximum_score()
+            if self.all_mines_flagged():
+                self.user_score = self.calculate_maximum_score()
             else:
                 # Update score with the temporary score calculated
-                self.score = score + (sum(cell.is_flagged for row in self.board for cell in row)) * 20
+                self.user_score = score + (sum(cell.is_flagged for row in self.board for cell in row)) * self.CORRECT_FLAG_POINTS
         else:
-            # Update score with the temporary score calculated
-            self.score = score
+            self.user_score = score
+    
+    def process_current_cell_score(self, cell):
+        if cell.get_type() != 'mine' and cell.is_revealed:
+            return 1
+        return 0
+
+    def all_mines_flagged(self):
+        return all(cell.get_type() == 'mine' and cell.is_flagged for row in self.board for cell in row)
 
     def calculate_maximum_score(self):
         """ Calculate the maximum possible score. """
@@ -165,7 +172,7 @@ class MinesweeperLogic:
             for cell in row:
                 if cell.get_type() != 'mine':
                     max_score += 1
-        return max_score + (self.num_mines * 20)  # Additional 20 points for each mine
+        return max_score + (self.num_mines * self.CORRECT_FLAG_POINTS) 
 
     def check_for_win(self):
         """function to check if the player has won the game"""
@@ -177,4 +184,4 @@ class MinesweeperLogic:
         return True                    
     
     def get_score(self):
-        return self.score
+        return self.user_score
