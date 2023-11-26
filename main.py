@@ -1,4 +1,3 @@
-# main.py
 from game_manager import GameManager
 from welcome import WelcomeScreen
 

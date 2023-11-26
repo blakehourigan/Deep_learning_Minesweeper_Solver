@@ -1,5 +1,3 @@
-# cell.py
-
 class Cell:
     def __init__(self):
         # default the cell type to blank

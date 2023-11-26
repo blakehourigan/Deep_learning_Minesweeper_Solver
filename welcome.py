@@ -1,4 +1,3 @@
-# welcome.py
 import tkinter as tk
 
 import config
