@@ -9,9 +9,8 @@ class MinesweeperGUI:
         self.master = master
         
         self.controller = controller
-        self.setup_game_clock(self.master, self.controller.logic.grid_size)
+        
             
-        self.main_gui_setup(self.controller.logic.grid_size)
                   
         self.images = \
         {
@@ -23,7 +22,7 @@ class MinesweeperGUI:
      
     def main_gui_setup(self, size) -> None:
         self.master.title("Minesweeper")
-        
+        self.setup_game_clock(self.master, self.controller.logic.grid_size)
         # create layout for the elements on the screen
         for i in range(1, size + 1):
             self.master.grid_rowconfigure(i, weight=1) 
@@ -132,3 +131,6 @@ class MinesweeperGUI:
     
     def show_error(self, title, message) -> None:
         messagebox.showinfo(title, message)
+        
+    def handle_right_click(self, row, column) -> None:
+        pass

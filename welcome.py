@@ -3,8 +3,10 @@ import tkinter as tk
 import config
 
 class WelcomeScreen:
-    def __init__(self, master, start_game_callback):
-        self.master = master
+    def __init__(self):
+        pass
+        
+    def show_welcome_screen(self, master, start_game_callback):
         self.start_game_callback = start_game_callback
         master.title("Welcome to Minesweeper")
         
@@ -47,10 +49,10 @@ class WelcomeScreen:
         window_width = config.welc_width
         window_height = config.welc_height
         
-        self.master.minsize(window_width, window_height)
+        master.minsize(window_width, window_height)
         tk.Button(master, text="Start Game", command=self.on_start_game).pack()
         
-        self.center_window(config.welc_width, config.welc_height)  # Set the size of the window defined in config
+        self.center_window(master, config.welc_width, config.welc_height)  # Set the size of the window defined in config
 
     def on_start_game(self):
         difficulty = self.difficulty.get()
@@ -89,12 +91,12 @@ class WelcomeScreen:
             return "red"
         return "white"
     
-    def center_window(self, width, height):
+    def center_window(self, master, width, height):
         # Get screen width and height
-        screen_width = self.master.winfo_screenwidth()
-        screen_height = self.master.winfo_screenheight()
+        screen_width = master.winfo_screenwidth()
+        screen_height = master.winfo_screenheight()
 
         # Calculate position x and y coordinates
         x = (screen_width / 2) - (width / 2)
         y = (screen_height / 2) - (height / 2)
-        self.master.geometry(f'{width}x{height}+{int(x)}+{int(y)}')
+        master.geometry(f'{width}x{height}+{int(x)}+{int(y)}')

@@ -10,19 +10,26 @@ class MinesweeperLogic:
         
     CORRECT_FLAG_POINTS = 20 
     
-    def __init__(self, controller, size, mines):
-        self.num_mines = mines
-        self.grid_size = size
+    def __init__(self, controller):
+        self.controller = controller
+
+        self.num_mines = 0
+        self.grid_size = 0
     
-        self.mine_coords = set()
-        
         self.num_moves = 0
         self.user_score = 0
+        
+        self.mine_coords = set()
         
         self.running = False
         self.player = None
         
-        self.controller = controller
+        
+    def set_mines(self, mines) -> None:
+        self.num_mines = mines
+    
+    def set_difficulty(self, size) -> None:
+        self.grid_size = size
         
     def create_board(self) -> None:
         self.board = [[Cell() for _ in range(self.grid_size)] for _ in range(self.grid_size)]

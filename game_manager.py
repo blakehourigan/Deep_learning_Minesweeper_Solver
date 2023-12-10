@@ -10,49 +10,55 @@ from logic import MinesweeperLogic
 
 class GameManager:
     
-    def __init__(self) -> None:
+    def __init__(self, restart_function) -> None:
+        self.restart_function = restart_function
+        
         self.root = tk.Tk()
         self.root.title("Minesweeper")
-        self.current_screen = None
-
-    def start_welcome_screen(self, welcome_class) -> None:
-        self.current_screen = welcome_class(self.root, self.start_game)
         
+        self.logic = MinesweeperLogic(self)
+        self.GUI = MinesweeperGUI(self.root, self)
+
+        self.win_screen = WinSplashScreen(self.restart_game, self.destroy_game)
+        self.end_screen = EndSplashScreen(self.restart_game, self.destroy_game)
+        
+        self.show_welcome_screen = WelcomeScreen()
+
+    def start_welcome_screen(self) -> None:
+        self.show_welcome_screen.show_welcome_screen(self.root, self.start_game)
         self.root.mainloop()
 
     def start_game(self, difficulty, player) -> None:
         self.clear_screen()
         
-        self.create_logic(difficulty, player)
+        self.create_game_board(difficulty, player)
         
-        self.current_screen = MinesweeperGUI(self.root, self)
+        self.current_screen = self.GUI
         self.GUI = self.current_screen
     
-    def create_logic(self, difficulty, player):
-        self.logic = MinesweeperLogic(controller=self, **config.DIFFICULTIES[difficulty])
+    def create_game_board(self, difficulty, player):
         self.logic.player = player
-        self.logic.grid_size = config.DIFFICULTIES[difficulty]['size']
-        self.logic.num_mines = config.DIFFICULTIES[difficulty]['mines']
+        self.logic.set_difficulty(config.DIFFICULTIES[difficulty]['size']) 
+        self.logic.set_mines(config.DIFFICULTIES[difficulty]['mines'])
         self.logic.create_board()
+        self.GUI.main_gui_setup(self.logic.grid_size)
     
     def show_win_screen(self) -> None:
         """ clear the gui and show the winner splash screen """
         self.clear_screen()
-        self.current_screen = WinSplashScreen(self.root, self.restart_game, self.destroy_game)
+        self.win_screen.show_win_screen(self.root)
     
     def show_loss_screen(self) -> None:
         self.clear_screen()
-        self.current_screen = EndSplashScreen(self.root, self.restart_game, self.destroy_game)
+        self.end_screen.show_end_screen(self.root)
 
     def clear_screen(self) -> None:
         for widget in self.root.winfo_children():
             widget.destroy()
 
     def restart_game(self) -> None:
-        self.clear_screen()
-        if hasattr(self, 'logic'):
-            del self.logic
-        self.start_welcome_screen(WelcomeScreen)
+        self.destroy_game()
+        self.restart_function()             # we need to change this to destroy the game manager and 
         
     def destroy_game(self) -> None:
         self.clear_screen()
